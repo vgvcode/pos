@@ -1,0 +1,37 @@
+10/26/16
+
+1.  Catalog functions
+    Create table                                                        DONE    CatalogTable
+    Delete table                                                        DONE    CatalogTable
+    Load items to catalog from file (remote only)                       DONE    CatalogTable
+
+    Delete items from a particular catalog (remote only)                DONE    Catalog
+    Add item to catalog (remote only)                                   DONE    Catalog
+    Remove item from catalog (remote only)                              DONE    Catalog
+    Update item name in catalog (remote only)                           DONE    Catalog
+    Update item price in catalog (remote only)                          DONE    Catalog
+    Fetch all items from local catalog into memory                      DONE    Catalog
+
+    Clear local catalog and import remote catalog                       DONE    commonmodule
+
+
+2.  Order functions
+    Create table                                                        DONE    OrderTable
+    Delete table                                                        DONE    OrderTable
+    Fetch all orders for a given PosID                                  DONE    OrderTable
+    Dequeue all orders from Order Queues to Remote Table (Remote only)  DONE    OrderTable
+
+    Create a new order                                                  DONE    Order         
+    Add item to order                                                   DONE    Order
+    Delete item from order                                              DONE    Order
+    Update totals                                                       DONE    Order
+    Push order to queue                                                 DONE    Order
+    Save order to local (and push to queue)
+    Delete order
+    Print order
+        
+    
+3.  Central Database functions
+    List all orders by POS
+    List all orders by POS for today, for last X days, between day A and day B
+    

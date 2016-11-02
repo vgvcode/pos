@@ -1,0 +1,144 @@
+#!/usr/bin/python
+from __future__ import print_function # Python 2/3 compatibility
+from decimal import *
+import ordersmodule
+import catalogmodule
+import commonmodule
+import sys
+
+posId = 'PosGNChettyRoadCafe'
+catalogmodule.CatalogId = 'Cat123'
+
+#use this end point to download catalogmodule.Catalog from cloud
+#endpoint = "https://dynamodb.us-east-1.amazonaws.com"
+
+def testCreateRemoteCatalog():
+    'create a list of items and add them one by one'
+    items = [
+             {"itemId" : '100', "itemName": 'IDLI', "price": 20},
+             {"itemId" : '101', "itemName": 'DOSA', "price": 22},
+             {"itemId" : '102', "itemName": 'VADA', "price": 18},
+             {"itemId" : '103', "itemName": 'POORI', "price": 25},
+             {"itemId" : '104', "itemName": 'PONGAL', "price": 27},
+             {"itemId" : '105', "itemName": 'CHAPPATHI', "price": 15},
+             {"itemId" : '106', "itemName": 'NOODLES', "price": 20},
+             {"itemId" : '107', "itemName": 'MEALS', "price": 30},
+             {"itemId" : '108', "itemName": 'CHAAT', "price": 24},
+             {"itemId" : '109', "itemName": 'BATURA', "price": 32}
+             ]
+
+    #create a remote catalogmodule.Catalog
+    cat = catalogmodule.Catalog("SRC_CAT100", endpoint="https://dynamodb.us-east-1.amazonaws.com")
+    cat.createTable()
+    print('Created schema in remote db')
+    
+    #add items to the remote catalogmodule.Catalog
+    for i in items:
+        cat.addItem(i['itemId'], i['itemName'], i['price'])
+
+def testFetchRemoteCatalog():
+    cat = catalogmodule.Catalog("SRC_CAT100", endpoint="https://dynamodb.us-east-1.amazonaws.com")
+    cat.fetchFromDB()
+    cat.print()
+
+def testCreateLocalCatalog():
+    try:
+        catalogId = 'SRC_CAT100'
+    
+        'fetch the remote catalogmodule.Catalog'
+        remoteCat = catalogmodule.Catalog(catalogId, endpoint="https://dynamodb.us-east-1.amazonaws.com")
+        if remoteCat.fetchFromDB() == False: raise RuntimeError("Error")  
+        print("Fetched remote catalogmodule.Catalog")
+        
+        'copy the remote catalogmodule.Catalog to a dictionary'
+        copyCatDict = remoteCat.get()
+        
+        'exit here if remote catalogmodule.Catalog is empty'
+        if len(copyCatDict['items']) == 0: 
+            print("Remote catalogmodule.Catalog empty")
+            return
+    
+        print(copyCatDict)
+        
+        localCat = catalogmodule.Catalog(catalogId, endpoint="http://localhost:8000")
+        
+        'delete local table'
+        if localCat.deleteTable() == False: raise RuntimeError("Error")
+        print("Fetched local table")
+              
+        'recreate local table'
+        if localCat.createTable() == False: raise RuntimeError("Error")
+        print("Re-create local table")
+    
+        'load local table'
+        for i in copyCatDict['items']:
+            #print('{}, {}, {}'.format(i, copyCatDict['items'][i]['Name'], copyCatDict['items'][i]['Price']))
+            if localCat.addItem(i, copyCatDict['items'][i]['Name'], copyCatDict['items'][i]['Price']) == False: raise RuntimeError("Error")
+            print("Added item to catalogmodule.Catalog")
+        print('Added all items to catalogmodule.Catalog')
+    except RuntimeError as e:
+        print(e.response['Error']['Message'])
+    else:
+        print("Table created")
+
+def testFetchLocalCatalog():
+    cat = catalogmodule.Catalog("SRC_CAT100", endpoint="http://localhost:8000")
+    cat.fetchFromDB()
+    cat.print()
+    
+def testDropAndLoadLocalCatalog():
+    
+    'fetch remote catalogmodule.Catalog'
+    catalogId = 'SRC_CAT100'
+    remoteCat = catalogmodule.Catalog(catalogId, endpoint="https://dynamodb.us-east-1.amazonaws.com")
+    remoteCat.fetchFromDB()
+    print("Fetched remote catalogmodule.Catalog")
+
+    'copy remote catalogmodule.Catalog to a dictionary'
+    'load local table'
+
+#createordersmodule.OrderQueues()
+c = catalogmodule.Catalog("SRC_CAT100")
+c.fetchFromDB()
+
+o = ordersmodule.Order(posId)
+o.addItem('100', c.item('100'), 3)
+o.print()
+
+        
+#fetch the remote catalogmodule.Catalog from cloud
+#testCreateRemotecatalogmodule.Catalog()
+#testFetchRemotecatalogmodule.Catalog()
+
+#if table already exists, then quit
+#c = catalogmodule.Catalog("Cat456")
+#if c.createTable() == False: sys.exit()
+
+#testCreateLocalcatalogmodule.Catalog()
+#testFetchLocalcatalogmodule.Catalog()
+
+#c.fetchFromDB()
+#c.print()
+#print(c.get())
+
+#itemId = '101'
+#print('Updating price for item {}'.format(itemId))
+#c.updatePrice(itemId, 27.50)
+#print('{}: {}'.format(itemId, c._items[itemId]))
+
+#Create an ordersmodule.Order, add items to it, print and save it
+#o = ordersmodule.Order(posId)
+#i = Item('3', 'DOSA', 25.50, 3)
+#j = Item('4', 'POORI', 30.00, 1)
+#o.addItem(i)
+#o.addItem(j)
+#o.print()
+#o.save()
+
+#fetch an ordersmodule.Order, convert it to an ordersmodule.Order object and print it
+#ordersmodule.OrderId= '7b71e608-8c8c-11e6-8cb2-9801a7a7a649'
+#odict = fetch(posId, ordersmodule.OrderId)
+#if odict is not None:
+    #print(odict)
+    #o2 = ordersmodule.Order(posId).fromDictionary(odict)
+    #o2.print()

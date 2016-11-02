@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;posproject/inputorders&apos; to &apos;inputorders.py&apos;" description="Rename resource &apos;inputorders&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="inputorders" name="inputorders.py" stamp="1478028652126" updateReferences="true"/>
+</session>

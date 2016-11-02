@@ -1,0 +1,348 @@
+#!/usr/bin/python
+from __future__ import print_function # Python 2/3 compatibility
+import json
+from decimal import *
+import time
+import uuid
+import boto3
+from copy import deepcopy
+from boto3.dynamodb.conditions import Key
+import commonmodule
+
+# Helper class to convert a DynamoDB item to JSON.
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, Decimal):
+            if o % 1 > 0:
+                return float(o)
+            else:
+                return int(o)
+        return super(DecimalEncoder, self).default(o)
+    
+class CatalogTable:
+    'base class for DDL operations on catalog'
+    __tableName = 'catalog'
+    
+    def __init(self, endpoint = "http://localhost:8000"):
+        self.__endpoint = endpoint
+        self.__dynamodb = boto3.resource('dynamodb', endpoint_url=endpoint)
+        self.__table = self.__dynamodb.Table(Catalog.__tableName)
+        
+    def createTable(self):
+        'create a new catalog'
+        result = True
+        try:
+            self.__table = self.__dynamodb.create_table(
+                TableName=CatalogTable.__tableName,
+                    KeySchema=[
+                        {
+                            'AttributeName': 'CatalogID',
+                            'KeyType': 'HASH'  #Partition key
+                        },
+                        {
+                            'AttributeName': 'ItemID',
+                            'KeyType': 'RANGE'  #Sort key
+                        }
+                    ],
+                    AttributeDefinitions=[
+                        {
+                            'AttributeName': 'CatalogID',
+                            'AttributeType': 'S'
+                        },
+                        {
+                            'AttributeName': 'ItemID',
+                            'AttributeType': 'S'
+                        },
+                    ],
+                    ProvisionedThroughput={
+                        'ReadCapacityUnits': 10,
+                        'WriteCapacityUnits': 10
+                        }
+                )
+        except Exception as e:
+            print(e.response['Error']['Message'] + ':' + CatalogTable.__tableName)
+            result = False
+        finally:
+            return result
+
+    def deleteTable(self):
+        result = True
+        try:
+            self.__table.delete()
+        except Exception as e:
+            print(e.response['Error']['Message'] + ':' + CatalogTable.__tableName)
+            result = False
+        finally:
+            return result
+        
+    def load(self, fileName):
+        result = True
+        try:
+            'load the catalog from a json file'
+            with open(fileName) as json_file:
+                catalog = json.load(json_file, parse_float = Decimal)
+                for catItem in catalog:
+                    CatalogID = catItem['CatalogID']
+                    ItemID = catItem['ItemID']
+                    Info = catItem['Info']
+    
+                    print("Adding item:", CatalogID, ItemID, Info)
+    
+                    self.__table.put_item(
+                        Item={
+                            'CatalogID': CatalogID,
+                            'ItemID': ItemID,
+                            'Info': Info
+                        }
+                    )
+        except Exception as e:
+            print(e)
+            result = False
+        finally:
+            return result
+               
+class Catalog:
+    'common base class for catalog'
+    __tableName = 'catalog'
+    
+    def __init__(self, catalogId, endpoint = "http://localhost:8000"):
+        self.__endpoint = endpoint
+        self.__dynamodb = boto3.resource('dynamodb', endpoint_url=endpoint)
+        self.__table = self.__dynamodb.Table(Catalog.__tableName)
+        self.__catalogId = catalogId
+        self.__items = {}
+        self.fetchFromDB()
+
+    def copyFromRemote(self, remoteEndpoint):
+        'copy remote catalog to local and return local catalog'
+        result = True
+        try:
+            'fetch the remote catalog'
+            remoteCat = Catalog(self.__catalogId, endpoint=remoteEndpoint)
+            print(remoteCat.getItems())
+
+            'delete the local items'
+            self.__items = {}
+
+            for i in remoteCat.getItems():
+                itemId = i['ItemID']
+                info = i['Info']
+
+                response = self.__table.put_item(
+                   Item={
+                    'CatalogID': self.__catalogId,
+                    'ItemID': itemId,
+                    'Info': info
+                    }
+                )
+                    
+                print('Adding to DB: {}, {}, {}'.format(itemId, info['Name'], info['Price']))
+                print(response)
+                
+                'add the item to the catalog in memory - this will avoid re-syncing remote catalog with local'
+                self.__items[itemId] = info
+
+        except RuntimeError as e:
+            print(e)
+            result = False
+        finally:
+            return result        
+        
+    def get(self):
+        return { 
+                "catalogId" : self.__catalogId,
+                "endpoint" : self.__endpoint,
+                "tableName" : Catalog.__tableName,
+                "items" : self.__items
+                }
+    
+    def fetchFromDB(self):
+        'fetch the catalog'
+        'first clear the existing catalog'
+        result = True
+        self.__items = {}
+        try:
+            response = self.__table.query(KeyConditionExpression=Key('CatalogID').eq(self.__catalogId))        
+            for r in response['Items']:
+                self.__items[r['ItemID']] = r['Info']
+        except Exception as e:
+            print(e)
+            result = False
+        finally:
+            return result
+
+    def fetchItemFromDB(self, itemId):
+        'fetch the item from the catalog'
+        response = None
+        try:
+            response = self.__table.query(KeyConditionExpression=Key('CatalogID').eq(self.__catalogId) & Key('ItemID').eq(itemId))
+            return response['Items']
+        except Exception as e:
+            print(e)
+            return None
+        
+    def addRemoteItem(self, idy, name, price, remoteEndpoint):
+        'add item to the remote catalog. Do not add to local because this will diverge local catalogs from remote over time'
+        remoteDynamoDb = boto3.resource('dynamodb', endpoint_url = remoteEndpoint)
+        remoteTable = remoteDynamoDb.Table(Catalog.__tableName)
+        result = True
+        print('Adding to DB: {}, {}, {}'.format(idy, name, price))
+        createdTicks = time.time()
+        createdTime = time.asctime(time.localtime(createdTicks))
+        info = {
+                'ItemId': idy,
+                'CreatedTime': createdTime,
+                'CreatedTicks': Decimal(createdTicks),
+                'UpdatedTime': "0",
+                'UpdatedTicks': Decimal(0),
+                'Name': name,
+                'Price': commonmodule.money(price)
+                }
+
+        try:
+            response = remoteTable.put_item(
+               Item={
+                'CatalogID': self.__catalogId,
+                'ItemID': idy,
+                'Info': info
+                }
+            )
+            
+            'add the item to the catalog in memory - this will avoid re-syncing remote catalog with local'
+            self.__items[idy] = info
+            #print("PutItem succeeded:")
+            #print(json.dumps(response, indent=4, cls=DecimalEncoder))
+        except Exception as e:
+            print(e)
+            result = False            
+        finally:
+            return result
+
+    def getItems(self):
+        return self.__items
+    
+    def updateRemotePrice(self, itemId, price, remoteEndpoint):
+        'update item price to the remote catalog. Do not update local because this will diverge local catalogs from remote over time'
+        remoteDynamoDb = boto3.resource('dynamodb', endpoint_url = remoteEndpoint)
+        remoteTable = remoteDynamoDb.Table(Catalog.__tableName)
+
+        result = True
+        updatedTicks = time.time()
+        updatedTime = time.asctime(time.localtime(updatedTicks))
+
+        try:
+            response = remoteTable.update_item(
+                Key={
+                    'CatalogID': self.__catalogId,
+                    'ItemID': itemId,
+                },
+                UpdateExpression="set Info.Price = :p, Info.UpdatedTime = :u, Info.UpdatedTicks = :t",
+                    ExpressionAttributeValues={
+                        ':p': commonmodule.money(price),
+                        ':u': updatedTime,
+                        ':t': Decimal(updatedTicks),
+                    },
+                ReturnValues="UPDATED_NEW"
+            )
+            print("Item updated")
+            result = True
+
+            #print("UpdateItem succeeded:")
+            #print(json.dumps(response, indent=4, cls=DecimalEncoder))   
+
+            'update the item in the catalog in memory so that you do not need to re-sync with remote catalog'     
+            self.__items[itemId]['Price'] = commonmodule.money(price)
+            self.__items[itemId]['UpdatedTime'] = updatedTime
+            self.__items[itemId]['UpdatedTicks'] = updatedTicks
+        except Exception as e:
+            print(e)
+            result = False
+        finally:
+            return result
+        
+    def updateRemoteName(self, itemId, name, remoteEndpoint):
+        'update item price to the remote catalog. Do not update local because this will diverge local catalogs from remote over time'
+        remoteDynamoDb = boto3.resource('dynamodb', endpoint_url = remoteEndpoint)
+        remoteTable = remoteDynamoDb.Table(Catalog.__tableName)
+
+        result = True
+        updatedTicks = time.time()
+        updatedTime = time.asctime(time.localtime(updatedTicks))
+
+        try:
+            response = remoteTable.update_item(
+                Key={
+                    'CatalogID': self.__catalogId,
+                    'ItemID': itemId,
+                },
+                UpdateExpression="set Info.Name = :n, Info.UpdatedTime = :u, Info.UpdatedTicks = :t",
+                    ExpressionAttributeValues={
+                        ':n': name,
+                        ':u': updatedTime,
+                        ':t': Decimal(updatedTicks),
+                    },
+                ReturnValues="UPDATED_NEW"
+            )
+            print("Item updated")
+            result = True
+
+            #print("UpdateItem succeeded:")
+            #print(json.dumps(response, indent=4, cls=DecimalEncoder))   
+
+            'update the item in the catalog in memory to avoid re-sync with remote catalog'     
+            self.__items[itemId]['Name'] = name
+            self.__items[itemId]['UpdatedTime'] = updatedTime
+            self.__items[itemId]['UpdatedTicks'] = updatedTicks
+        except Exception as e:
+            print(e)
+            result = False
+        finally:
+            return result
+
+    def removeRemoteItem(self, itemId, remoteEndpoint):
+        'remove item from remote catalog. Do no remove from local catalog first as it will diverge local catalogs from remote over time'
+        remoteDynamoDb = boto3.resource('dynamodb', endpoint_url = remoteEndpoint)
+        remoteTable = remoteDynamoDb.Table(Catalog.__tableName)
+        result = False
+        try:
+            response = remoteTable.delete_item(
+                Key={
+                    'CatalogID': self.__catalogId,
+                    'ItemID': itemId,
+                },
+            )
+            'remove the item from the catalog in memory to avoid re-sync'
+            del self.__items[itemId]
+            #print("DeleteItem succeeded:")
+            #print(json.dumps(response, indent=4, cls=DecimalEncoder))             
+
+        except Exception as e:
+            print(e)
+        finally:
+            return result
+
+    def removeRemoteCatalog(self, remoteEndpoint):
+        'remove all item from remote catalog. Do no remove from local catalog first as it will diverge local catalogs from remote over time'
+        remoteDynamoDb = boto3.resource('dynamodb', endpoint_url = remoteEndpoint)
+        remoteTable = remoteDynamoDb.Table(Catalog.__tableName)
+        result = False
+        try:
+            response = remoteTable.delete_item(
+                Key={
+                    'CatalogID': self.__catalogId
+                },
+            )
+            'remove the item from the catalog in memory to avoid re-sync'
+            self.__items = {}
+            #print("DeleteItem succeeded:")
+            #print(json.dumps(response, indent=4, cls=DecimalEncoder))             
+        except Exception as e:
+            print(e)
+        finally:
+            return result
+        
+    def print(self):
+        for itm in self.__items:
+            print('{}: {}'.format(itm, self.__items[itm]))
+        print('There are {} items in the catalog'.format(len(self.__items)))
+        

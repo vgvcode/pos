@@ -1,0 +1,7 @@
+MODULES_MANAGER_V2
+catalogmodule|/Users/vgvcode/Documents/aws/boto3/dynamodb/pos/posproject/catalogmodule.py
+commonmodule|/Users/vgvcode/Documents/aws/boto3/dynamodb/pos/posproject/commonmodule.py
+inputorders|/Users/vgvcode/Documents/aws/boto3/dynamodb/pos/posproject/inputorders.py
+ordersmodule|/Users/vgvcode/Documents/aws/boto3/dynamodb/pos/posproject/ordersmodule.py
+sqsmodule|/Users/vgvcode/Documents/aws/boto3/dynamodb/pos/posproject/sqsmodule.py
+testorders|/Users/vgvcode/Documents/aws/boto3/dynamodb/pos/posproject/testorders.py

@@ -1,0 +1,242 @@
+#!/usr/bin/python
+from __future__ import print_function # Python 2/3 compatibility
+import json
+from decimal import *
+import time
+import uuid
+import boto3
+import commonmodule
+from copy import deepcopy
+from boto3.dynamodb.conditions import Key
+import sqsmodule
+
+# Helper class to convert a DynamoDB item to JSON.
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, Decimal):
+            if o % 1 > 0:
+                return float(o)
+            else:
+                return int(o)
+        return super(DecimalEncoder, self).default(o)
+
+class Order:
+    'common base class for all orders'
+    
+    __taxPct = 10
+    __newOrdersQueue = "NewOrdersQueue"
+    __updatedOrdersQueue = "UpdatedOrdersQueue"
+    __deletedOrdersQueue = "DeletedOrdersQueue"
+
+    def __init__(self, posId, orderId = str(uuid.uuid1()), endpoint = "http://localhost:8000"):
+        self.__dynamodb = boto3.resource('dynamodb', endpoint_url=endpoint)
+        self.__table = self.__dynamodb.Table("orders")
+        self.__posId = posId
+        self.__orderId = orderId
+        self.__listOfItems = []
+        self.__createdTicks = time.time()
+        self.__createdTime = time.asctime(time.localtime(self.__createdTicks))
+        self.__updatedTicks = 0
+        self.__updatedTime = "0"
+        self.__queued = 0
+        self.__gross = 0
+        self.__tax = 0
+        self.__net = 0
+        
+    def toDictionary(self):
+        odict = {'PosID': self.__posId, 'OrderID': self.__orderId}
+        odict['Info'] = {
+                         'CreatedTime': self.__createdTime,
+                         'CreatedTicks': Decimal(self.__createdTicks),
+                         'UpdatedTime': self.__upatedTime,
+                         'UpdatedTicks': Decimal(self.__updatedTicks),
+                         'Queued': self.__queued,
+                         'ListOfItems': self.__listOfItems,
+                         'Gross': commonmodule.money(self.__gross),
+                         'TaxPct': commonmodule.money(Order.__taxPct),
+                         'Tax': commonmodule.money(self.__tax),
+                         'Net': commonmodule.money(self.__net)
+                         }
+                
+        #print(odict)
+        return odict
+    
+    def fromDictionary(self, odict):
+        self.__posId = odict['PosID']
+        self.__orderId = odict['OrderID']
+        self.__createdTicks = odict['Info']['CreatedTicks']
+        self.__createdTime = odict['Info']['CreatedTime']
+        self.__updatedTicks = odict['Info']['UpdatedTicks']
+        self.__updatedTime = odict['Info']['UpdatedTime']
+        self.__queued = odict['Info']['Queued']
+        self.__listOfItems = odict['Info']['ListOfItems']
+        self.__gross = odict['Info']['Gross']
+        self.__taxPct = odict['Info']['TaxPct']
+        self.__tax = odict['Info']['Tax']
+        self.__net = odict['Info']['Net']
+        
+    'fetch order from db based on orderId'
+    def fetchFromDB(self):
+        result = True
+        try:
+            response = Order.table.query(KeyConditionExpression=Key('PosID').eq(self.__posId) & Key('OrderID').eq(self.__orderId))
+            'convert the first match into an order'
+            if len(response['Items']) > 0:
+                self.fromDictionary(response['Items'][0])
+        except Exception as e:
+            print(e.response['Error']['Message'])
+            result = False
+        finally:
+            return result
+    
+    def addOrderItem(self, newOrderItem):
+        'add item to order'
+        self.__listOfItems.append(newOrderItem.toDictionary())
+        
+    def addItem(self, idy, itm, qty):
+        oi = OrderItem(idy, itm['Name'], itm['Price'], qty)
+        self.__listOfItems.append(oi.toDictionary())
+        
+    def removeItemAt(self, at):
+        del self.__listOfItems[at]
+        
+    def indexOfItem(self, name):
+        'returns index of first match or -1'
+        itemFound = -1
+        idx = 0
+        for elt in self.__listOfItems:
+            if elt['name'] == name:
+                itemFound = idx
+                break
+            idx+=1
+        return itemFound
+    
+    def updateTotal(self):
+        self.__gross = 0
+        for elt in self.__listOfItems:
+            self.__gross += commonmodule.money(elt['_Item__price'] * elt['_Item__quantity'])
+        self.__tax = commonmodule.money(Order.taxPct * self.__gross / 100)
+        self.__net = commonmodule.money(self.__gross + self.__tax)
+    
+    def saveToDB(self):
+        result = True
+        #update before saving
+        self.updateTotal()
+        try:
+            #push to queue
+            self.pushToQueue(Order.__newOrdersQueue)
+                
+            response = self.__table.put_item(Item = self.toDictionary())
+            #print("PutItem succeeded:")
+            #print(json.dumps(response, indent=4, cls=DecimalEncoder))
+        except Exception as e:
+            print(e.response['Error']['Message'])
+            result = False       
+        finally:
+            return result
+        
+    def deleteFromDB(self):
+        'push to queue and delete order from DB'
+        result = True
+        try:
+            #push to queue
+            self.pushToQueue(Order.__deletedOrdersQueue)
+
+            response = self.__table.delete_item(
+                            Key = {
+                                   'PosID': self.__posId,
+                                   'OrderID': self.__orderId
+                                   }
+                        )
+        except Exception as e:
+            print(e.response['Error']['Message'])
+            result = False       
+        finally:
+            return result
+    
+    def updateToDB(self):
+        'push to queue and update order in DB'
+        result = True
+        try:
+            #push to queue
+            self.pushToQueue(Order.__updatedOrdersQueue)
+
+            odict = self.toDictionary()
+            response = self.__table.update_item(
+                            Key = {
+                                   'PosID': odict["PosId"],
+                                   'OrderID': odict["OrderId"]
+                                   },
+                            UpdateExpression = "set Info = :i",
+                            ExpressionAttributeValues = {
+                                   ':i': odict["Info"]
+                                    },
+                            ReturnValues="UPDATED_NEW"
+                        )
+        except Exception as e:
+            print(e.response['Error']['Message'])
+            result = False       
+        finally:
+            return result
+                
+    def pushToQueue(self, qn):
+        result = True
+        try:
+            dct = self.toDictionary()
+            msg_list = [
+                {
+                    'Id': str(uuid.uuid1()),
+                    'MessageBody': dct,
+                    'MessageAttributes': { 
+                                     'PosID': dct['PosID'], 
+                                     'OrderID': dct['OrderID']
+                                     }
+                 }
+                ]
+            sqsmodule.send_messages(qn, msg_list)
+            self.__queued = 1
+        except Exception as e:
+            print(e.response['Error']['Message'])
+            result = False        
+        finally:
+            return result
+
+    def get(self):
+        return self.toDictionary()
+    
+    def getQueues(self):
+        return [Order.__newOrdersQueue, Order.__deletedOrdersQueue, Order.__updatedOrdersQueue]
+        
+    def print(self):
+        #update before printing
+        self.updateTotal()
+        print('PosId: {}'.format(self.__posId))
+        print('OrderId: {}'.format(self.__orderId))
+        print('Created: {}'.format(self.__createdTime))
+        for elt in self.__listOfItems:
+            for k in elt.keys():
+                newK = k.replace('_Item__', '')
+                newK = newK[0].upper() + newK[1:]
+                print('{}: {}'.format(newK, elt[k]), end=", ")
+            print()
+        print('Gross: {}'.format(self.__gross))
+        print('Tax: {}'.format(self.__tax))
+        print('Net: {}'.format(self.__net))
+                                        
+class OrderItem:
+    'common base class for all items'
+    
+    def __init__(self, idy, name, price, quantity):
+        self.__id = idy
+        self.__name = name
+        self.__price = commonmodule.money(price)
+        self.__quantity = commonmodule.money(quantity)
+        self.__amount = commonmodule.money(self.__quantity * self.__price)
+        self.__createdTicks = time.time()
+        self.__createdTime = time.asctime(time.localtime(self.__createdTicks))
+    
+    def toDictionary(self):
+        return deepcopy(self.__dict__)
+        
+    def print(self):
+        print(self.__dict__)

@@ -1,0 +1,7 @@
+10/26/16
+1. Download catalog from remote to local db - done
+2. Save order (send to queue and save to local db) - done
+3. List catalog items from local db - done
+4. List orders from local
+5. Update an order - done
+6. Delete an order - done

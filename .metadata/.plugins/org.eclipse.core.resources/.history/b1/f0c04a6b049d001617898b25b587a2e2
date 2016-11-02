@@ -1,0 +1,30 @@
+10/26/16
+
+1.  Catalog functions
+    Create table (local and remote)                                     DONE
+    Delete table (local and remote)                                     DONE
+    Load items to catalog from file (remote)                            DONE
+    Delete items from a particular catalog (local and remote, TBD)
+    Add item to catalog (remote)
+    Clear local catalog and import remote catalog
+    Update item name in catalog (remote)
+    Update item price in catalog (remote)
+    Fetch all items from local catalog into memory
+
+
+2.  Order functions
+    Create a new order
+    Add item to order
+    Delete item from order (local)
+    Update order (local)
+    Delete order (local)
+    Push order to queue
+    Save order to local (and push to queue)
+    Update totals
+    Print order
+        
+    
+3.  Central Database functions
+    List all orders by POS
+    List all orders by POS for today, for last X days, between day A and day B
+    

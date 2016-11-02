@@ -1,0 +1,138 @@
+#!/usr/bin/python
+from __future__ import print_function # Python 2/3 compatibility
+from decimal import *
+import ordersmodule
+import catalogmodule
+import commonmodule
+import sys
+import time
+from boto3.dynamodb.conditions import Key, Attr
+import sqsmodule
+import random
+import json
+
+def testCreateRemoteCatalog():
+    'create a list of items and add them one by one'
+    items = [
+             {"itemId" : '100', "itemName": 'IDLI', "price": 20},
+             {"itemId" : '101', "itemName": 'DOSA', "price": 22},
+             {"itemId" : '102', "itemName": 'VADA', "price": 18},
+             {"itemId" : '103', "itemName": 'POORI', "price": 25},
+             {"itemId" : '104', "itemName": 'PONGAL', "price": 27},
+             {"itemId" : '105', "itemName": 'CHAPPATHI', "price": 15},
+             {"itemId" : '106', "itemName": 'NOODLES', "price": 20},
+             {"itemId" : '107', "itemName": 'MEALS', "price": 30},
+             {"itemId" : '108', "itemName": 'CHAAT', "price": 24},
+             {"itemId" : '109', "itemName": 'BATURA', "price": 32}
+             ]
+
+    #create a remote catalogmodule.Catalog
+    cat = catalogmodule.Catalog("SRC_CAT100", endpoint="https://dynamodb.us-east-1.amazonaws.com")
+    cat.createTable()
+    print('Created schema in remote db')
+    
+    #add items to the remote catalogmodule.Catalog
+    #delay a few seconds
+    print('Waiting for resource to be available...')
+    time.sleep(30)
+    for i in items:
+        cat.addItem(i['itemId'], i['itemName'], i['price'])
+
+def testFetchRemoteCatalog():
+    cat = catalogmodule.Catalog("SRC_CAT100", endpoint="https://dynamodb.us-east-1.amazonaws.com")
+    cat.fetchFromDB()
+    cat.print()
+
+def testFetchLocalCatalog():
+    cat = catalogmodule.Catalog("SRC_CAT100", endpoint="http://localhost:8000")
+    cat.fetchFromDB()
+    cat.print()
+
+def testFetchAllOrders(posId):
+    os = ordersmodule.OrderTable()    
+    r = os.fetchForPos(posId)
+    for itm in r["Items"]:
+        print(itm)
+        print("Total orders:{}".format(len(r["Items"])))    
+    
+#createordersmodule.OrderQueues()
+
+#testCreateRemoteCatalog()
+
+#Create the order table
+#os = ordersmodule.OrderTable(endpoint = ep)
+#os.createTable()
+
+#Create the order queues
+#oq = ordersmodule.OrderQueues()
+#oq.makeQueues()
+
+#Get orders made in X days
+#r = getOrdersMadeInXDays(posId, 1)
+#print("Orders made in the last 1 day")
+#for o in r['Items']:
+#    print(o['PosID'], ":", o['OrderID'], o['Info'])
+
+#testCopyRemoteCatalogToLocal(catId)
+#c = catalogmodule.Catalog(catId)
+
+#r = c.fetchItemFromDB('102')
+#print(r)
+
+#c.print()
+#print(c.getItems()['100'])
+
+#Place a few orders
+#for i in [1,2,3]:
+#    o = ordersmodule.Order(posId)
+#    o.addItem(c.getItems()['103'], i)
+#    o.addItem(c.getItems()['104'], i)
+#    o.saveToDB()
+#    #o.print()
+    
+#ot = ordersmodule.OrderTable()
+#ot.deQueueOrdersToRemote('insert', 'https://dynamodb.us-east-1.amazonaws.com')    
+
+#Initialization
+posId = 'PosGNChettyRoadCafe'
+catId = 'SRC_CAT100'
+ep = "http://localhost:8000"
+remoteEp = "https://dynamodb.us-east-1.amazonaws.com"
+
+lCat = catalogmodule.Catalog(catId)
+"""
+if lCat.copyFromRemote(remoteEp) == False:
+    print("Remote copy failed")
+    SystemExit()
+    
+print('Copied remote catalog to local')
+"""
+
+items = lCat.getItems()
+print(items)
+
+"""
+for i in range(1,20):
+    print('Placing order number:{}'.format(i))
+    o = ordersmodule.Order(posId)
+    
+    numItems = int(random.random() * 5)
+    for j in range(1, numItems+1):
+        itemNumStr = str(100 + int(random.random() * 10))
+        itemQty = int(random.random() * 20)
+        o.addItem(items[itemNumStr], itemQty)
+     
+    o.saveToDB()   
+
+ot = ordersmodule.OrderTable()
+ot.deQueueOrdersToRemote('insert', remoteEp)
+print('Dequeued all orders to remote DB')
+"""
+
+r = commonmodule.getOrdersMadeInXDays(posId, 1)
+print('Number of orders made in the last 1 day:{}'.format(len(r['Items'])))
+for oDict in r['Items']:
+    oObj = ordersmodule.Order(posId)
+    oObj.fromDictionary(oDict)
+    print("New Order:")
+    oObj.print()

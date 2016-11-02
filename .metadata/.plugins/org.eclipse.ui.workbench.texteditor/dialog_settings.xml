@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
+		<item value="false" key="isRegEx"/>
+		<item value="No orders" key="selection"/>
+		<item value="false" key="casesensitive"/>
+		<item value="true" key="incremental"/>
+		<item value="true" key="wrap"/>
+		<item value="false" key="wholeword"/>
+		<list key="findhistory">
+			<item value="No Orders"/>
+			<item value="No "/>
+			<item value="print"/>
+			<item value="suffix"/>
+			<item value="cobj"/>
+			<item value="obj"/>
+			<item value="deepcopy"/>
+			<item value="print(e.response[&apos;Error&apos;][&apos;Message&apos;])"/>
+		</list>
+		<list key="replacehistory">
+			<item value="file.write"/>
+			<item value="prefix"/>
+			<item value="obj"/>
+			<item value="cobj"/>
+			<item value="print(e)"/>
+			<item value="Catalog.__tableName"/>
+			<item value="Exception"/>
+			<item value="createTable"/>
+		</list>
+	</section>
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
+		<item value="290" key="DIALOG_WIDTH"/>
+		<item value="1|.SF NS Text|11.0|0|COCOA|1|.SFNSText" key="DIALOG_FONT_NAME"/>
+		<item value="409" key="DIALOG_HEIGHT"/>
+		<item value="843" key="DIALOG_X_ORIGIN"/>
+		<item value="128" key="DIALOG_Y_ORIGIN"/>
+	</section>
+</section>

@@ -1,0 +1,88 @@
+#!/usr/bin/python
+from __future__ import print_function # Python 2/3 compatibility
+import json
+from decimal import *
+import time
+import uuid
+import boto3
+from copy import deepcopy
+from boto3.dynamodb.conditions import Key
+
+# Helper class to convert a DynamoDB item to JSON.
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, Decimal):
+            if o % 1 > 0:
+                return float(o)
+            else:
+                return int(o)
+        return super(DecimalEncoder, self).default(o)
+
+class Catalog:
+    'common base class for catalog'
+    
+    endpoint = "http://localhost:8000"
+    dynamodb = boto3.resource('dynamodb', endpoint_url=endpoint)
+    tableName = "catalog"
+    table = dynamodb.Table(tableName)
+    
+    def __init__(self, catalogId):
+        self.catalogId = catalogId
+        self.items = {}
+        
+    def fetch(self):
+        'fetch the catalog'
+        response = Catalog.table.query(KeyConditionExpression=Key('CatalogID').eq(self.catalogId))
+        for r in response['Items']:
+            self.items[r['ItemID']] = r['Info']
+        
+    def addItem(self, itemId, itemName, price):
+        'add item to the catalog'
+        createdTicks = time.time()
+        createdTime = time.asctime(time.localtime(createdTicks))
+        
+        response = Catalog.table.put_item(
+           Item={
+            'CatalogID': self.catalogId,
+            'ItemID': itemId,
+            'Info': {
+                'CreatedTime': createdTime,
+                'CreatedTicks': Decimal(createdTicks),
+                'UpdatedTime': "",
+                'UpdatedTicks': Decimal(0),
+                'Name': itemName,
+                'Price': money(price)
+                }
+            }
+        )
+        print("PutItem succeeded:")
+        print(json.dumps(response, indent=4, cls=DecimalEncoder))
+
+        
+    def updatePrice(self, itemId, price):
+        'update item price'
+        updatedTicks = time.time()
+        updatedTime = time.asctime(time.localtime(updatedTicks))
+
+        response = Catalog.table.update_item(
+            Key={
+                'CatalogID': self.catalogId,
+                'ItemID': itemId,
+            },
+            UpdateExpression="set info.Price = :p, info.UpdatedTime=:u, info.UpdatedTicks=:t",
+                ExpressionAttributeValues={
+                    ':p': money(price),
+                    ':u': Decimal(updatedTime),
+                    ':t': Decimal(updatedTicks),
+                },
+            ReturnValues="UPDATED_NEW"
+        )
+
+        print("UpdateItem succeeded:")
+        print(json.dumps(response, indent=4, cls=DecimalEncoder))        
+
+    def removeItem(self, itemId):
+        'remove item from catalog'
+        
+def money(num):
+    return Decimal(num).quantize(Decimal('.01'), rounding=ROUND_UP)

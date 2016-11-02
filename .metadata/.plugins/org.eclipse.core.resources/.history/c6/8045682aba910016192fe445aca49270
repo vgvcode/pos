@@ -1,0 +1,60 @@
+#!/usr/bin/python
+from __future__ import print_function # Python 2/3 compatibility
+import json
+from decimal import *
+import time
+import uuid
+import boto3
+from copy import deepcopy
+from boto3.dynamodb.conditions import Key
+import ordersmodule
+import catalogmodule
+import sqsmodule
+     
+def money(num):
+    return Decimal(num).quantize(Decimal('.01'), rounding=ROUND_UP)  
+
+"""
+def copyRemoteToLocalCatalog(catalogId):
+    try:
+        'fetch the remote catalog'
+        remoteCat = Catalog(catalogId, endpoint="https://dynamodb.us-east-1.amazonaws.com")
+        if remoteCat.fetchFromDB() == False: raise RuntimeError("Error")  
+        print("Fetched remote catalog")
+        
+        'copy the remote catalog to a dictionary'
+        copyCatDict = remoteCat.get()
+        
+        'exit here if remote catalog is empty'
+        if len(copyCatDict['items']) == 0: 
+            print("Remote catalog empty")
+            return
+    
+        print(copyCatDict)
+        
+        localCat = Catalog(catalogId, endpoint="http://localhost:8000")
+        
+        'delete local table'
+        if localCat.deleteTable() == False: raise RuntimeError("Error")
+        print("Fetched local table")
+              
+        'recreate local table'
+        if localCat.createTable() == False: raise RuntimeError("Error")
+        print("Re-create local table")
+    
+        'load local table'
+        for i in copyCatDict['items']:
+            #print('{}, {}, {}'.format(i, copyCatDict['items'][i]['Name'], copyCatDict['items'][i]['Price']))
+            if localCat.addItem(i, copyCatDict['items'][i]['Name'], copyCatDict['items'][i]['Price']) == False: raise RuntimeError("Error")
+            print("Added item to catalog")
+        print('Added all items to catalog')
+    except RuntimeError as e:
+        print(e.response['Error']['Message'])
+    else:
+        print("Table created")
+        
+def createOrderQueues():
+    for q in ["NewOrdersQueue", "UpdatedOrdersQueue", "DeletedOrdersQueue"]:
+        make_queue(q)
+"""
+        

@@ -1,0 +1,85 @@
+#!/usr/bin/python
+from __future__ import print_function # Python 2/3 compatibility
+from decimal import *
+import ordersmodule
+import catalogmodule
+import commonmodule
+import sys
+import time
+from boto3.dynamodb.conditions import Key, Attr
+import sqsmodule
+import random
+import json
+
+def newOrder(ot, remEp):
+    moreItems = True
+    count = 0
+    while moreItems:
+        i = input("Item code: (0 to exit):")
+        if i == '0':
+            moreItems = False
+            break
+        print(items[i])
+        q = input("Quantity: (0 to skip):")
+        if q == '0':
+            continue
+        
+        ord.addItem(items[i], int(q))
+        count = count + 1
+    
+    if count > 0:
+        ord.writeToFile("orders.txt")
+         
+        if ord.saveToDB() == True:
+            print("Order saved successfully")
+        else:
+            print("Order not saved")
+    
+        del ord
+        
+    ot.deQueueOrdersToRemote('insert', remEp)
+    print('Dequeued all insert orders to remote DB')    
+
+
+
+#Initialization
+posId = 'PosGNChettyRoadCafe'
+catId = 'SRC_CAT100'
+ep = "http://localhost:8000"
+remoteEp = "https://dynamodb.us-east-1.amazonaws.com"
+oTable = ordersmodule.OrderTable()
+
+#Copy remote catalog to local
+lCat = catalogmodule.Catalog(catId)
+
+if lCat.copyFromRemote(remoteEp) == False:
+    print("Remote copy failed")
+    SystemExit()
+    
+print('Copied remote catalog to local')
+
+items = lCat.getItems()
+print(items)
+
+moreOrders = True
+
+while moreOrders:
+    o = input("[N]ew order, [U]pdate order, [E]xit?:")
+    if o == 'N':
+        moreOrders = False
+        break
+    
+    ord = ordersmodule.Order(posId)
+
+
+    
+numSeconds = 6000
+r = commonmodule.getOrdersMadeInXSeconds(posId, numSeconds)
+listOfOrders = r['Items']
+listOfOrdersByTime = sorted(listOfOrders, key=lambda order: order['Info']['CreatedTicks'])
+print('Number of orders made in the last {} seconds: {}'.format(numSeconds, len(r['Items'])))
+for oDict in listOfOrdersByTime:
+    oObj = ordersmodule.Order(posId)
+    oObj.fromDictionary(oDict)
+    print("New Order:")
+    oObj.print()
