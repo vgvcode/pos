@@ -1,0 +1,47 @@
+[
+   {
+        "PosID": "PosMountRoadPostOfficeFloor1Chennai",
+        "OrderID": "100",
+        "Info": {
+            "Created Time": "05Oct2016",
+            "Updated Time": "06Oct2016",
+            "List Of Items": [
+                            {"id": 21, "name": "IDLI", "price": 25, "quantity": 3, "amount": 75}
+                           ],
+            "Gross": 115.50,
+            "Tax": 11.50,
+            "Net": 127
+        }
+    },
+   {
+        "PosID": "PosMountRoadPostOfficeFloor1Chennai",
+        "OrderID": "101",
+        "Info": {
+            "Created Time": "05Oct2016",
+            "Updated Time": "06Oct2016",
+            "List Of Items": [
+                            {"id": 21, "name": "IDLI", "price": 25, "quantity": 3, "amount": 75},
+                            {"id": 10, "name": "COFFEE", "price": 10, "quantity": 1, "amount": 10}
+                           ],
+            "Gross": 85,
+            "Tax": 8.50,
+            "Net": 93.50
+        }
+    },
+   {
+        "PosID": "PosExpressMallChennai",
+        "OrderID": "100",
+        "Info": {
+            "Created Time": "05Oct2016",
+            "Updated Time": "06Oct2016",
+            "List Of Items": [
+                            {"id": 10, "name": "COFFEE", "price": 10, "quantity": 1, "amount": 10},
+                            {"id": 25, "name": "DOSA", "price": 50, "quantity": 1, "amount": 50},
+                            {"id": 30, "name": "POORI", "price": 60, "quantity": 1, "amount": 60}
+                           ],
+            "Gross": 120,
+            "Tax": 12,
+            "Net": 132
+        }
+    }
+]

@@ -1,0 +1,331 @@
+New orderPosId: PosGNChettyRoadCafe
+OrderId: a547db54-9e43-11e6-8d0d-9801a7a7a649
+Created: Sat Oct 29 21:53:25 2016
+Number of items in this order:7
+Gross: 1412.00
+Tax: 141.20
+Net: 1553.20
+New orderPosId: PosGNChettyRoadCafe
+OrderId: 10b7afa4-9e44-11e6-bb3c-9801a7a7a649
+Created: Sat Oct 29 21:56:25 2016
+Number of items in this order:6
+Gross: 1968.00
+Tax: 196.80
+Net: 2164.80
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: d6a2ad7e-9e44-11e6-9b5d-9801a7a7a649
+Created: Sat Oct 29 22:01:57 2016
+Number of items in this order:1
+Gross: 22.00
+Tax: 2.20
+Net: 24.20
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: d6d2fb30-9e44-11e6-bb71-9801a7a7a649
+Created: Sat Oct 29 22:01:58 2016
+Number of items in this order:6
+Gross: 1664.00
+Tax: 166.40
+Net: 1830.40
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: d6f0859c-9e44-11e6-82c9-9801a7a7a649
+Created: Sat Oct 29 22:01:58 2016
+Number of items in this order:7
+Gross: 1613.00
+Tax: 161.30
+Net: 1774.30
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: d70f57e4-9e44-11e6-ae66-9801a7a7a649
+Created: Sat Oct 29 22:01:58 2016
+Number of items in this order:3
+Gross: 684.00
+Tax: 68.40
+Net: 752.40
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: d73113be-9e44-11e6-b2e1-9801a7a7a649
+Created: Sat Oct 29 22:01:58 2016
+Number of items in this order:7
+Gross: 1992.00
+Tax: 199.20
+Net: 2191.20
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: d74e4e98-9e44-11e6-bdbf-9801a7a7a649
+Created: Sat Oct 29 22:01:58 2016
+Number of items in this order:2
+Gross: 380.00
+Tax: 38.00
+Net: 418.00
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: d769f27e-9e44-11e6-b2f4-9801a7a7a649
+Created: Sat Oct 29 22:01:59 2016
+Number of items in this order:7
+Gross: 1913.00
+Tax: 191.30
+Net: 2104.30
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: d78630b8-9e44-11e6-b5d7-9801a7a7a649
+Created: Sat Oct 29 22:01:59 2016
+Number of items in this order:5
+Gross: 1154.00
+Tax: 115.40
+Net: 1269.40
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: d7a37db6-9e44-11e6-9e84-9801a7a7a649
+Created: Sat Oct 29 22:01:59 2016
+Number of items in this order:3
+Gross: 826.00
+Tax: 82.60
+Net: 908.60
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: d7c1f034-9e44-11e6-a274-9801a7a7a649
+Created: Sat Oct 29 22:01:59 2016
+Number of items in this order:4
+Gross: 1378.00
+Tax: 137.80
+Net: 1515.80
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: d7dd2468-9e44-11e6-a1f5-9801a7a7a649
+Created: Sat Oct 29 22:01:59 2016
+Number of items in this order:5
+Gross: 969.00
+Tax: 96.90
+Net: 1065.90
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: d7fca3c8-9e44-11e6-a9bc-9801a7a7a649
+Created: Sat Oct 29 22:02:00 2016
+Number of items in this order:4
+Gross: 757.00
+Tax: 75.70
+Net: 832.70
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: d817f126-9e44-11e6-a964-9801a7a7a649
+Created: Sat Oct 29 22:02:00 2016
+Number of items in this order:2
+Gross: 360.00
+Tax: 36.00
+Net: 396.00
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: d83d4e9c-9e44-11e6-b1ae-9801a7a7a649
+Created: Sat Oct 29 22:02:00 2016
+Number of items in this order:2
+Gross: 464.00
+Tax: 46.40
+Net: 510.40
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: d859117e-9e44-11e6-a1bc-9801a7a7a649
+Created: Sat Oct 29 22:02:00 2016
+Number of items in this order:4
+Gross: 1239.00
+Tax: 123.90
+Net: 1362.90
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: d87207d8-9e44-11e6-8f86-9801a7a7a649
+Created: Sat Oct 29 22:02:00 2016
+Number of items in this order:5
+Gross: 1670.00
+Tax: 167.00
+Net: 1837.00
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: d89bb486-9e44-11e6-a490-9801a7a7a649
+Created: Sat Oct 29 22:02:01 2016
+Number of items in this order:5
+Gross: 1049.00
+Tax: 104.90
+Net: 1153.90
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: d8b6d76e-9e44-11e6-b971-9801a7a7a649
+Created: Sat Oct 29 22:02:01 2016
+Number of items in this order:8
+Gross: 1791.00
+Tax: 179.10
+Net: 1970.10
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: d8dc041c-9e44-11e6-a3a2-9801a7a7a649
+Created: Sat Oct 29 22:02:01 2016
+Number of items in this order:5
+Gross: 832.00
+Tax: 83.20
+Net: 915.20
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: 69a63aa2-9ef0-11e6-860f-9801a7a7a649
+Created: Sun Oct 30 18:30:08 2016
+Number of items in this order:5
+Gross: 1586.00
+Tax: 158.60
+Net: 1744.60
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: cbafc97e-9ef1-11e6-a6ba-9801a7a7a649
+Created: Sun Oct 30 18:40:02 2016
+Number of items in this order:2
+Gross: 584.00
+Tax: 58.40
+Net: 642.40
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: 584550fa-9ef2-11e6-9282-9801a7a7a649
+Created: Sun Oct 30 18:43:58 2016
+Number of items in this order:5
+Gross: 956.00
+Tax: 95.60
+Net: 1051.60
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: a5bfc3de-9ef3-11e6-8354-9801a7a7a649
+Created: Sun Oct 30 18:53:17 2016
+Number of items in this order:1
+Gross: 72.00
+Tax: 7.20
+Net: 79.20
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: 1c4b5bd2-9ef4-11e6-85d3-9801a7a7a649
+Created: Sun Oct 30 18:56:36 2016
+Number of items in this order:9
+Gross: 1852.00
+Tax: 185.20
+Net: 2037.20
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: 2c5f7858-9ef6-11e6-ab7c-9801a7a7a649
+Created: Sun Oct 30 19:11:22 2016
+Number of items in this order:8
+Gross: 1367.00
+Tax: 136.70
+Net: 1503.70
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: 402ebaae-a06f-11e6-bf4a-9801a7a7a649
+OrderNumber: 0
+Created: Tue Nov  1 16:10:35 2016
+Number of items in this order:3
+Gross: 572.00
+Tax: 57.20
+Net: 629.20
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: 70b34330-a06f-11e6-8392-9801a7a7a649
+OrderNumber: 0
+Created: Tue Nov  1 16:11:57 2016
+Number of items in this order:7
+Gross: 1761.00
+Tax: 176.10
+Net: 1937.10
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: 5a35c748-a073-11e6-ac44-9801a7a7a649
+OrderNumber: 0
+Created: Tue Nov  1 16:39:57 2016
+Number of items in this order:2
+Gross: 436.00
+Tax: 43.60
+Net: 479.60
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: ab893f42-a073-11e6-b711-9801a7a7a649
+OrderNumber: 0
+Created: Tue Nov  1 16:42:14 2016
+Number of items in this order:2
+Gross: 183.00
+Tax: 18.30
+Net: 201.30
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: f0e69f06-a08b-11e6-862e-9801a7a7a649
+OrderNumber: 0
+Created: Tue Nov  1 19:35:58 2016
+Number of items in this order:2
+Gross: 58.00
+Tax: 5.80
+Net: 63.80
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: f0e69f06-a08b-11e6-862e-9801a7a7a649
+OrderNumber: 5
+Created: Tue Nov  1 19:35:58 2016
+Number of items in this order:3
+Gross: 133.00
+Tax: 13.30
+Net: 146.30
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: f0e69f06-a08b-11e6-862e-9801a7a7a649
+OrderNumber: 6
+Created: Tue Nov  1 19:35:58 2016
+Number of items in this order:4
+Gross: 241.00
+Tax: 24.10
+Net: 265.10
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: c413cd00-a106-11e6-ab39-9801a7a7a649
+OrderNumber: 0
+Created: Wed Nov  2 10:15:11 2016
+Number of items in this order:2
+Gross: 58.00
+Tax: 5.80
+Net: 63.80
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: 25bcb370-a107-11e6-a61f-9801a7a7a649
+OrderNumber: 0
+Created: Wed Nov  2 10:17:55 2016
+Number of items in this order:1
+Gross: 22.00
+Tax: 2.20
+Net: 24.20
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: 4ebd84ac-a107-11e6-8b04-9801a7a7a649
+OrderNumber: 0
+Created: Wed Nov  2 10:19:03 2016
+Number of items in this order:1
+Gross: 22.00
+Tax: 2.20
+Net: 24.20
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: a8ef057a-a107-11e6-872d-9801a7a7a649
+OrderNumber: 0
+Created: Wed Nov  2 10:21:35 2016
+Number of items in this order:1
+Gross: 22.00
+Tax: 2.20
+Net: 24.20
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: 6c44b92c-a108-11e6-ad92-9801a7a7a649
+OrderNumber: 0
+Created: Wed Nov  2 10:27:02 2016
+Number of items in this order:1
+Gross: 36.00
+Tax: 3.60
+Net: 39.60
+New order
+PosId: PosGNChettyRoadCafe
+OrderId: ab1c905c-a108-11e6-ba76-9801a7a7a649
+OrderNumber: 0
+Created: Wed Nov  2 10:28:48 2016
+Number of items in this order:1
+Gross: 75.00
+Tax: 7.50
+Net: 82.50
